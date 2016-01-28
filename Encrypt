@@ -1,0 +1,134 @@
+#ifndef __ENCRYPT_H
+#define __ENCRYPT_H
+#include "Encrypt-Init.h"
+void Intro(){//Aero_Chord_-_Surface_[Monstercat_Release_.wav
+	int counter = 0;
+	mciSendStringA("open I_Am_The_Doctor_Restructure.wav alias MY_SND", NULL, 0, NULL);
+	mciSendStringA("play MY_SND from 0", NULL, 0, NULL);
+	while (counter < 300){
+		system("Color 1A");
+		counter++;
+		system("Color 2B");
+		counter++;
+		system("Color 3C");
+		counter++;
+		system("Color 4D");
+		counter++;
+		system("Color 5E");
+		counter++;
+		system("Color 6F");
+		counter++;
+		system("Color A1");
+		counter++;
+		system("Color B2");
+		counter++;
+		system("Color D4");
+		counter++;
+		system("Color E5");
+		counter++;
+		system("Color F6");
+		counter++;
+	}
+	system("cls");
+	mciSendStringA("stop MY_SND", NULL, 0, NULL);
+	system("Color 0A");
+}
+vector<int> Alphabet(string x){
+	vector<int>answers;
+	for (int y = 0; y < x.length(); y++){
+		answers.push_back((int)x[y]);
+	}
+	while (answers.size() % 3 != 0)
+		answers.push_back(32);
+	return answers;
+}
+
+int generateKey(int array[3][3]){
+	int num = 0;
+	int key[3][3];
+	int random = 0;
+	for (int i = 0; i < 3; i++){
+		for (int a = 0; a < 3; a++){
+			srand((unsigned)time(0)*random);
+			num = num + rand() % 26 + 1;
+			key[i][a] = num;
+			array[i][a] = key[i][a];
+			random++;
+		}
+	}
+	return array[3][3];
+}
+bool checkKey(int key[3][3]){
+	int determinant = (key[0][0] * (key[1][1] * key[2][2] - key[1][2] * key[2][1])) - (key[0][1] * (key[1][0] * key[2][2] - key[2][0] * key[1][2])) + (key[0][2] * (key[1][0] * key[2][1] - key[1][1] * key[2][0]));
+	if (determinant == 0){
+		return false;
+	}
+	else {
+		return true;
+	}
+}
+vector<int> generateCiphertext(int key[3][3], vector<int>text){
+	vector<int>answers;
+	int i = 0;
+	int x = 0;
+	int y = 0;
+	while (i < text.size()){
+		while (x < 3){
+			answers.push_back(text[i] * key[x][y] + text[i + 1] * key[x][y + 1] + text[i + 2] * key[x][y + 2]);
+			x++;
+		}
+		x = 0;
+		y = 0;
+		i = i + 3;
+	}
+	return answers;
+}
+string generateFilename(){
+	string y;
+	bool exit = false;
+	int counter = 0;
+	while (true){
+		cout << "Enter a name for the file where the decrypted message\n will be located (without the .txt extension)" << endl;
+		getline(cin, y);
+		for (int a = 0; a < y.length(); a++){
+			if (y.length() >= 64 || y.size() == 0 || y[a] == '\\' || y[a] == '/' || y[a] == '*' || y[a] == '<' || y[a] == '>' || y[a] == '|' || y[a] == ':' || y[a] == '?' || y[a] == '\''){
+				system("cls");
+				cout << "That is not a valid name. Please enter a non empty name that does not include\n the characters *,<,>,?, |, :, /, \\, \" \nand does not contain more than 64 characters." << endl;
+				break;
+			}
+			else if (a == y.length() - 1){
+				exit = true;
+				break;
+			}
+		}
+		if (exit == true){
+			break;
+		}
+	}
+
+	return y;
+}
+void outputFile(int key[3][3], vector<int>code, string x){
+	ofstream output;
+	output.open(x);
+	int i = 0;
+	int counter = 0;
+	while (i < code.size()){
+		output << code[i] << ",";
+		i++;
+	}
+	for (int a = 0; a < 3; a++){
+		for (int b = 0; b < 3; b++)
+			if (a == 2 && b == 2){
+				output << key[a][b];
+			}
+			else
+				output << key[a][b] << ",";
+	}
+}
+
+
+
+
+
+#endif
