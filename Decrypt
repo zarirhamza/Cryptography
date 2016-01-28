@@ -1,0 +1,99 @@
+#ifndef __DECRYPT_H
+#define __DECRYPT_H
+#include "Decrypt-Init.h"
+vector<int> generateCodedtext(double key[3][3], vector<double>text){
+	vector<double>answers;
+	vector<int>answers2;
+	int i = 0;
+	int x = 0;
+	int y = 0;
+	int a = 0;
+	while (i < text.size()){
+		while (x < 3){
+			answers.push_back(text[i] * key[x][y] + text[i + 1] * key[x][y + 1] + text[i + 2] * key[x][y + 2]);
+			x++;
+		}
+		x = 0;
+		y = 0;
+		i = i + 3;
+	}
+	for (int y = 0; y < answers.size(); y++){
+		answers2.push_back(round(answers[y]));
+	}
+	return answers2;
+}
+vector<string> inputFile(){
+	string x, word;
+	int counter = 0;
+	int num = 0;
+	vector<string>words;
+	while (true){
+		cout << "Please specify the file name you want to decode(with the .txt extension)" << endl;
+		cin >> x;
+		ifstream file(x);
+		if (file){
+			while (!file.eof()){
+				getline(file, word, ',');
+				words.push_back(word);
+				counter++;
+			}
+			break;
+		}
+		else{
+			system("cls");
+			cout << "That file does not exist. Please try again." << endl;
+		}
+	}
+	return words;
+}
+int* extractKey(vector<string>words, int key[3][3]){
+	vector<int>keyNum;
+	int counter = 9;
+	int x = 0;
+	int c = 0;
+	int y = 0;
+	int i = words.size();
+	while (counter > 0){
+		while (x < 3){
+			while (c < 3){
+				keyNum.push_back(stoi(words[i - counter]));
+				key[x][c] = keyNum[y];
+				c++;
+				counter--;
+				y++;
+			}
+			c = 0;
+			x++;
+		}
+	}
+	return *key;
+}
+vector<double> extractCode(vector<string>words){
+	vector<double>keyNum;
+	int i = 0;
+	while (i != words.size() - 9){
+		keyNum.push_back(stoi(words[i]));
+		i++;
+	}
+	return keyNum;
+}
+double* keyInverse(int key[3][3], double key2[3][3]){
+	double det = key[0][0] * (key[1][1] * key[2][2] - key[2][1] * key[1][2]) - key[0][1] * (key[1][0] * key[2][2] - key[1][2] * key[2][0]) + key[0][2] * (key[1][0] * key[2][1] - key[1][1] * key[2][0]);
+	double inDet = 1 / det;
+	key2[0][0] = ((double)key[1][1] * key[2][2] - key[2][1] * key[1][2]) * inDet;
+	key2[0][1] = ((double)key[0][2] * key[2][1] - key[0][1] * key[2][2]) * inDet;
+	key2[0][2] = ((double)key[0][1] * key[1][2] - key[0][2] * key[1][1]) * inDet;
+	key2[1][0] = ((double)key[1][2] * key[2][0] - key[1][0] * key[2][2]) * inDet;
+	key2[1][1] = ((double)key[0][0] * key[2][2] - key[0][2] * key[2][0]) * inDet;
+	key2[1][2] = ((double)key[0][2] * key[1][0] - key[0][0] * key[1][2]) * inDet;
+	key2[2][0] = ((double)key[1][0] * key[2][1] - key[1][1] * key[2][0]) * inDet;
+	key2[2][1] = ((double)key[0][1] * key[2][0] - key[2][1] * key[0][0]) * inDet;
+	key2[2][2] = ((double)key[1][1] * key[0][0] - key[0][1] * key[1][0]) * inDet;
+	return *key2;
+}
+void print(double x)
+{
+	char symbol = (char)(x);
+	cout << symbol;
+}
+#endif
